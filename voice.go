@@ -354,15 +354,15 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 				v.log(LogInformational, "received 4014 manual disconnection")
 
 				// Abandon the voice WS connection
-				v.Lock()
-				v.wsConn = nil
-				v.Unlock()
-
-				v.session.Lock()
-				delete(v.session.VoiceConnections, v.GuildID)
-				v.session.Unlock()
-
-				v.Close()
+				// v.Lock()
+				// v.wsConn = nil
+				// v.Unlock()
+				//
+				// v.session.Lock()
+				// delete(v.session.VoiceConnections, v.GuildID)
+				// v.session.Unlock()
+				//
+				// v.Close()
 
 				return
 			}
