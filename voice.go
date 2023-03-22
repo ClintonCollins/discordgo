@@ -76,7 +76,8 @@ type VoiceSpeakingUpdateHandler func(vc *VoiceConnection, vs *VoiceSpeakingUpdat
 // Speaking sends a speaking notification to Discord over the voice websocket.
 // This must be sent as true prior to sending audio and should be set to false
 // once finished sending audio.
-//  b  : Send true if speaking, false if not.
+//
+//	b  : Send true if speaking, false if not.
 func (v *VoiceConnection) Speaking(b bool) (err error) {
 
 	v.log(LogDebug, "called (%t)", b)
@@ -193,7 +194,8 @@ func (v *VoiceConnection) Close() {
 		// To cleanly close a connection, a client should send a close
 		// frame and wait for the server to close the connection.
 		v.wsMutex.Lock()
-		err := v.wsConn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+		err := v.wsConn.WriteMessage(websocket.CloseMessage,
+			websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 		v.wsMutex.Unlock()
 		if err != nil {
 			v.log(LogError, "error closing websocket, %s", err)
@@ -355,35 +357,35 @@ func (v *VoiceConnection) wsListen(wsConn *websocket.Conn, close <-chan struct{}
 			if websocket.IsCloseError(err, 4014) {
 				v.log(LogInformational, "received 4014 manual disconnection")
 
-				// Abandon the voice WS connection
-				v.Lock()
-				v.wsConn = nil
-				v.Unlock()
-
-				// Wait for VOICE_SERVER_UPDATE.
-				// When the bot is moved by the user to another voice channel,
-				// VOICE_SERVER_UPDATE is received after the code 4014.
-				for i := 0; i < 5; i++ { // TODO: temp, wait for VoiceServerUpdate.
-					<-time.After(1 * time.Second)
-
-					v.RLock()
-					reconnected := v.wsConn != nil
-					v.RUnlock()
-					if !reconnected {
-						continue
-					}
-					v.log(LogInformational, "successfully reconnected after 4014 manual disconnection")
-					return
-				}
-
-				// When VOICE_SERVER_UPDATE is not received, disconnect as usual.
-				v.log(LogInformational, "disconnect due to 4014 manual disconnection")
-
-				v.session.Lock()
-				delete(v.session.VoiceConnections, v.GuildID)
-				v.session.Unlock()
-
-				v.Close()
+				// // Abandon the voice WS connection
+				// v.Lock()
+				// v.wsConn = nil
+				// v.Unlock()
+				//
+				// // Wait for VOICE_SERVER_UPDATE.
+				// // When the bot is moved by the user to another voice channel,
+				// // VOICE_SERVER_UPDATE is received after the code 4014.
+				// for i := 0; i < 5; i++ { // TODO: temp, wait for VoiceServerUpdate.
+				// 	<-time.After(1 * time.Second)
+				//
+				// 	v.RLock()
+				// 	reconnected := v.wsConn != nil
+				// 	v.RUnlock()
+				// 	if !reconnected {
+				// 		continue
+				// 	}
+				// 	v.log(LogInformational, "successfully reconnected after 4014 manual disconnection")
+				// 	return
+				// }
+				//
+				// // When VOICE_SERVER_UPDATE is not received, disconnect as usual.
+				// v.log(LogInformational, "disconnect due to 4014 manual disconnection")
+				//
+				// v.session.Lock()
+				// delete(v.session.VoiceConnections, v.GuildID)
+				// v.session.Unlock()
+				//
+				// v.Close()
 
 				return
 			}
